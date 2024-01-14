@@ -1,7 +1,19 @@
-methods = ['iwv', 'wald ratio']
+import polars as pl
+
+"""
+iwv: Inverse Weighted Variance
+wr: Wald Ratio
+ml: Maximum Likelihood
+wm: Weighed Median
+sm: Simple Median
+"""
+methods = ['iwv', 'wr', 'ml', 'wm']
 
 
-def calculate_effect(data, method):
+def calculate_effect(data: pl.DataFrame, method: str):
+    """
+    Calculates causal effect using the specified method
+    """
     if method == 'ivw':
         effect = (data['beta_exp'] * data['beta_out'] * data['se_out']
                   ** -2).sum() / (data['beta_exp'] ** 2 * data['se_out'] ** -2).sum()

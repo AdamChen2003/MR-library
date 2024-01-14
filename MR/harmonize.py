@@ -1,7 +1,11 @@
 import polars as pl
 
 
-def harmonize(data):
+def harmonize(data: pl.DataFrame):
+    """
+    Harmonizes the data based on this article
+    https://mrcieu.github.io/TwoSampleMR/articles/harmonise.html#palindromic-snp-inferrable
+    """
     forwards_same = data.filter(((pl.col('ea_exp') == pl.col(
         'ea_out')) & (pl.col('oa_exp') == pl.col('oa_out'))))
 

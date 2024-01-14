@@ -4,8 +4,17 @@ import polars as pl
 population = ['EUR', 'SAS', 'EAS', 'AFR', 'AMR', 'legacy']
 
 
-def ld_matrix(rsids, pop_option=0):
-    pop = population[pop_option]
+def ld_matrix(rsids, pop='EUR'):
+    """
+    Returns linkage disequilibirum matrix between pairs of rsids using the ieugwaspy library which 
+    acesses the IEUGWAS api.
+
+    Keyword arguments:
+
+    rsids -- A list of rsids to be examined
+
+    pop -- A choice of demographic from the population list (default EUR)
+    """
     return igd.api_query(
         path='/ld/matrix',
         query={
@@ -16,8 +25,19 @@ def ld_matrix(rsids, pop_option=0):
     )
 
 
-def ld_clump(rsids, pvals, pthresh=5*10**(-8), r2=0.001, kb=5000, pop_option=0):
-    pop = population[pop_option]
+def ld_clump(rsids, pvals, pthresh=5*10**(-8), r2=0.001, kb=5000, pop='EUR'):
+    """
+    Returns a dataframe of pruned rsids based on linkage disequilibrium using the ieugwaspy library which 
+    acesses the IEUGWAS api.
+
+    Keyword arguments:
+
+    rsids -- A list of rsids to be examined
+
+    pvals -- A list of p-values which are associated with the rsids
+
+    pop -- A choice of demographic from the population list (default EUR)
+    """
     pruned = igd.api_query(
         path='/ld/clump',
         query={
