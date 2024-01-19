@@ -9,7 +9,7 @@ def ld_matrix(rsids, pop='EUR'):
     Returns linkage disequilibirum matrix between pairs of rsids using the ieugwaspy library which 
     acesses the IEUGWAS api.
 
-    Keyword arguments:
+    Arguments:
 
     rsids -- A list of rsids to be examined
 
@@ -30,7 +30,7 @@ def ld_clump(rsids, pvals, pthresh=5*10**(-8), r2=0.001, kb=5000, pop='EUR'):
     Returns a dataframe of pruned rsids based on linkage disequilibrium using the ieugwaspy library which 
     acesses the IEUGWAS api.
 
-    Keyword arguments:
+    Arguments:
 
     rsids -- A list of rsids to be examined
 

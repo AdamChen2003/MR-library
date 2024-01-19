@@ -42,11 +42,25 @@ def calculate_effect(data: pl.DataFrame, method: str):
     elif method == 'penalised_weighted_median':
         return mr_penalised_weighted_median(data['beta_exp'], data['beta_out'], data['se_exp'], data['se_out'])
 
+    elif method == 'weighted_mode':
+        return mr_mode(data['beta_exp'], data['beta_out'], data['se_exp'], data['se_out'])
+
     elif method == 'egger_regression':
-        return mr_egger_regression(data['beta_exp'], data['beta_out'], data['se_exp'], data['se_out'])
+        return mr_egger_regression(data['beta_exp'], data['beta_out'], data['se_out'])
 
 
 def mr_inverse_variance_weighted(beta_exp, beta_out, se_out):
+    """
+    Computes the causal effect using inverse weighted variance.
+
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_out -- Standard errors of genetic effects on outcome
+    """
     effect = (beta_exp * beta_out * se_out ** -2).sum() / \
         (beta_exp ** 2 * se_out ** -2).sum()
     se = ((beta_exp ** 2 * se_out ** -2).sum()) ** -0.5
@@ -57,6 +71,17 @@ def mr_inverse_variance_weighted(beta_exp, beta_out, se_out):
 
 
 def mr_wald_ratio(beta_exp, beta_out, se_out):
+    """
+    Computes the causal effect using the Wald ratio method.
+
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_out -- Standard errors of genetic effects on outcome
+    """
     effect = (beta_out/beta_exp).mean()
     se = (se_out/abs(beta_exp)).mean()
 
@@ -66,6 +91,19 @@ def mr_wald_ratio(beta_exp, beta_out, se_out):
 
 
 def mr_maximum_likelihood(beta_exp, beta_out, se_exp, se_out):
+    """
+    Computes the causal effect using inverse weighted variance.
+
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_exp -- Standard errors of genetic effects on exposure
+
+    se_out -- Standard errors of genetic effects on outcome
+    """
     n = len(beta_exp)
 
     def log_likelihood(param):
@@ -107,6 +145,19 @@ def weighted_median_se(beta_exp, beta_out, se_exp, se_out, weights, nboot=1000):
 
 
 def mr_simple_median(beta_exp, beta_out, se_exp, se_out):
+    """
+    Computes the causal effect using simple median.
+
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_exp -- Standard errors of genetic effects on exposure
+
+    se_out -- Standard errors of genetic effects on outcome
+    """
     n = len(beta_exp)
     b_iv = beta_out/beta_exp
     effect = weighted_median(b_iv, np.repeat(1/n, n))
@@ -119,6 +170,19 @@ def mr_simple_median(beta_exp, beta_out, se_exp, se_out):
 
 
 def mr_weighted_median(beta_exp, beta_out, se_exp, se_out):
+    """
+    Computes the causal effect using weighted median.
+
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_exp -- Standard errors of genetic effects on exposure
+
+    se_out -- Standard errors of genetic effects on outcome
+    """
     b_iv = beta_out/beta_exp
     VBj = se_out**2/beta_exp**2 + \
         beta_out**2 * se_exp**2/beta_exp**4
@@ -131,6 +195,19 @@ def mr_weighted_median(beta_exp, beta_out, se_exp, se_out):
 
 
 def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out):
+    """
+    Computes the causal effect using penalised weighted median.
+
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_exp -- Standard errors of genetic effects on exposure
+
+    se_out -- Standard errors of genetic effects on outcome
+    """
     beta_iv = beta_out/beta_exp
     beta_ivw = (beta_out*beta_exp*se_out**(-2)).sum() / \
         (beta_exp**2*se_out**(-2)).sum()
@@ -148,11 +225,65 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out):
         'effect': effect, 'se': se
     }
 
-# def mr_simple_mode(beta_exp, beta_out, se_exp, se_out):
+
+def mr_mode(beta_exp, beta_out, se_exp, se_out):
+    """
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_exp -- Standard errors of genetic effects on exposure
+
+    se_out -- Standard errors of genetic effects on outcome
+    """
+    def mad(data):
+        """
+        Computes median absolute deivation for provided data
+        """
+        return (data-data.mean()).sum()/len(data)
+
+    def beta(beta_iv_in, se_beta_inv_in, phi):
+        s = 0.9 * min(stdev(beta_iv_in), mad(beta_iv_in)) * \
+            len(beta_iv_in)**(-1/5)
+        weights = se_beta_inv_in**(-2)/(se_beta_inv_in**(-2)).sum()
+        beta = []
+        for cur_phi in range(0, phi):
+            h = max(0.00000001, s*cur_phi)
+            from rpy2 import robjects
+            from rpy2.robjects.packages import importr
+            from rpy2.robjects import vectors
+            import numpy as np
+
+            stats = importr("stats")
+
+            column = vectors.IntVector([63, 45, 47, 28, 59, 28, 59])
+
+            output = stats.density(column, adjust=1)
+
+            x = np.array(output[0])
+            y = np.array(output[1])
+            beta.append(x[y == max(y)])
+
+        print(beta)
+        return beta
+
+    beta(beta_exp, beta_out, se_exp)
 
 
-def mr_egger_regression(beta_exp, beta_out, se_exp, se_out):
+def mr_egger_regression(beta_exp, beta_out, se_out):
+    """
+    Computes the causal effect using egger regression.
 
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_out -- Standard errors of genetic effects on outcome
+    """
     def sign0(x):
         x[x == 0] = -1
         return np.sign(x)
@@ -167,6 +298,9 @@ def mr_egger_regression(beta_exp, beta_out, se_exp, se_out):
     # Code for the following is drawn from
     # https://gist.github.com/grisaitis/cf481034bb413a14d3ea851dab201d31
     def get_se():
+        """
+        Calculates the standard error of the coefficients of a fitted linear model
+        """
         N = len(beta_exp)
         p = 2
         X_with_intercept = np.empty(shape=(N, p), dtype=float)
@@ -181,7 +315,6 @@ def mr_egger_regression(beta_exp, beta_out, se_exp, se_out):
         return [var_beta_hat[p_, p_] ** 0.5 for p_ in range(p)]
 
     effect = model.coef_[0][0]
-
     # se = get_se()[1] / min(1, model.sigma)
     se = get_se()[1]
 
