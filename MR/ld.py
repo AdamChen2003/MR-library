@@ -11,9 +11,9 @@ def ld_matrix(rsids, pop='EUR'):
 
     Arguments:
 
-    rsids -- A list of rsids to be examined
+    rsids -- list of rsids to be examined
 
-    pop -- A choice of demographic from the population list (default EUR)
+    pop -- Choice of demographic from the population list (default EUR)
     """
     return igd.api_query(
         path='/ld/matrix',

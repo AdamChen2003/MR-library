@@ -24,6 +24,17 @@ def calculate_effect(data: pl.DataFrame, method: str):
     """
     Calculates causal effect using the specified method.
     List of methods can be accessed through the methods array.
+
+    Arguments:
+
+    data -- polars dataframe which contains the following columns:
+        beta_exp: Vector of genetic effects on exposure
+        beta_out: Vector of genetic effects on outcome
+        se_exp: Standard errors of genetic effects on exposure
+        se_out: Standard errors of genetic effects on outcome
+
+    method -- str which specifies which method to use. 
+        The list of available methods are accessible through the 'methods' list
     """
     if method == 'inverse_variance_weighted':
         return mr_inverse_variance_weighted(data['beta_exp'], data['beta_out'], data['se_out'])

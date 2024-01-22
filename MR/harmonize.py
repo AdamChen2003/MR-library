@@ -8,7 +8,7 @@ def harmonize(data: pl.DataFrame, palindromic_threshold=0.05):
 
     Arguments:
 
-    data -- A polars dataframe which contains the following columns:
+    data -- polars dataframe which contains the following columns:
         ea_exp: Effect allele for exposure
         oa_exp: Other allele for exposure
         ea_out: Effect allele for outcome
@@ -17,8 +17,8 @@ def harmonize(data: pl.DataFrame, palindromic_threshold=0.05):
         eaf_exp: Effect allele frequency for exposure
         eaf_out: Effect allele frequency for outcome
 
-    palindromic_threshold -- A threshold to filter out palindromic SNPs. 
-        A higher value results in stricter filtering. Default value is 0.05
+    palindromic_threshold -- threshold to filter out palindromic SNPs. 
+        A higher value results in stricter filtering. (Default 0.05)
     """
     forwards_same = data.filter(((pl.col('ea_exp') == pl.col(
         'ea_out')) & (pl.col('oa_exp') == pl.col('oa_out'))))
