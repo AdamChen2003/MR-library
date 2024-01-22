@@ -15,7 +15,7 @@ def weighted_median(b_iv, weights):
 
 def weighted_median_se(beta_exp, beta_out, se_exp, se_out, weights, nboot=1000):
     med = []
-    for i in range(0, nboot):
+    for i in range(1, nboot + 1):
         beta_exp_boot = np.random.normal(
             loc=beta_exp, scale=se_exp, size=len(beta_exp))
         beta_out_boot = np.random.normal(
@@ -66,8 +66,7 @@ def mr_weighted_median(beta_exp, beta_out, se_exp, se_out):
     se_out -- Standard errors of genetic effects on outcome
     """
     b_iv = beta_out/beta_exp
-    VBj = se_out**2/beta_exp**2 + \
-        beta_out**2 * se_exp**2/beta_exp**4
+    VBj = se_out**2/beta_exp**2 + beta_out**2 * se_exp**2/beta_exp**4
     effect = weighted_median(b_iv, 1/VBj)
     se = weighted_median_se(beta_exp, beta_out, se_exp, se_out, 1/VBj)
 
@@ -91,10 +90,9 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out):
     se_out -- Standard errors of genetic effects on outcome
     """
     beta_iv = beta_out/beta_exp
-    beta_ivw = (beta_out*beta_exp*se_out**(-2)).sum() / \
-        (beta_exp**2*se_out**(-2)).sum()
-    VBj = se_out**2/beta_exp**2 + \
-        beta_out**2 * se_exp**2/beta_exp**4
+    beta_ivw = ((beta_out*beta_exp*se_out**(-2)).sum() /
+                (beta_exp**2*se_out**(-2)).sum())
+    VBj = se_out**2/beta_exp**2 + beta_out**2 * se_exp**2/beta_exp**4
     weights = 1/VBj
     bwm = mr_weighted_median(beta_exp, beta_out, se_exp, se_out)
     penalty = chi2.cdf(weights*beta_iv-bwm['effect']**2, df=1)
