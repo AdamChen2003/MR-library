@@ -3,7 +3,7 @@ from MR.mr_methods.mr_egger_regression import mr_egger_regression
 from MR.mr_methods.mr_inverse_variance_weighted import mr_inverse_variance_weighted
 from MR.mr_methods.mr_maximum_likelihood import mr_maximum_likelihood
 from MR.mr_methods.mr_median import mr_penalised_weighted_median, mr_simple_median, mr_weighted_median
-from MR.mr_methods.mr_mode import mr_mode
+from MR.mr_methods.mr_mode import mr_simple_mode, mr_weighted_mode
 from MR.mr_methods.mr_wald_ratio import mr_wald_ratio
 
 
@@ -13,7 +13,8 @@ methods = [
     'maximum_likelihood',
     'simple_median',
     'weighted_median',
-    'penalised_weighted_median',
+    # 'penalised_weighted_median',
+    'simple_mode',
     'weighted_mode',
     'egger_regression',
     'presso'
@@ -54,8 +55,11 @@ def calculate_effect(data: pl.DataFrame, method: str):
     elif method == 'penalised_weighted_median':
         return mr_penalised_weighted_median(data['beta_exp'], data['beta_out'], data['se_exp'], data['se_out'])
 
+    elif method == 'simple_mode':
+        return mr_simple_mode(data['beta_exp'], data['beta_out'], data['se_exp'], data['se_out'])
+
     elif method == 'weighted_mode':
-        return mr_mode(data['beta_exp'], data['beta_out'], data['se_exp'], data['se_out'])
+        return mr_weighted_mode(data['beta_exp'], data['beta_out'], data['se_exp'], data['se_out'])
 
     elif method == 'egger_regression':
         return mr_egger_regression(data['beta_exp'], data['beta_out'], data['se_out'])

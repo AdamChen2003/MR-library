@@ -1,8 +1,12 @@
 from statistics import stdev
+import numpy as np
+from sklearn.neighbors import KernelDensity
 
 
-def mr_mode(beta_exp, beta_out, se_exp, se_out):
+def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=100, nboot=100):
     """
+    Performs simple or weighted mode.
+
     Arguments:
 
     beta_exp -- Vector of genetic effects on exposure
@@ -12,38 +16,93 @@ def mr_mode(beta_exp, beta_out, se_exp, se_out):
     se_exp -- Standard errors of genetic effects on exposure
 
     se_out -- Standard errors of genetic effects on outcome
+
+    phi -- Bandwidth parameter for density estimation
+
+    nboot -- Number of bootstraps to calculate SE
     """
     def mad(data):
         """
         Computes median absolute deivation for provided data
         """
-        return (data-data.mean()).sum()/len(data)
+        return (abs(data-data.mean())).sum()/len(data)
 
-    def beta(beta_iv_in, se_beta_iv_in, phi):
-        s = 0.9 * min(stdev(beta_iv_in), mad(beta_iv_in)) * \
-            len(beta_iv_in)**(-1/5)
-        weights = se_beta_iv_in**(-2)/(se_beta_iv_in**(-2)).sum()
-        beta = []
-        for cur_phi in range(0, phi):
-            h = max(0.00000001, s*cur_phi)
-            from rpy2 import robjects
-            from rpy2.robjects.packages import importr
-            from rpy2.robjects import vectors
-            import numpy as np
+    def beta(beta_iv_in, se_beta_iv_in, phi=100):
+        s = 0.9*min(stdev(beta_iv_in), mad(beta_iv_in))*len(beta_iv_in)**(-1/5)
+        weights = 1/(se_beta_iv_in**(2)*(1/se_beta_iv_in**(2)).sum())
+        # for cur_phi in phi:
+        h = max(0.00000001, s*phi)
+        X = beta_iv_in.reshape((-1, 1))
+        kde = KernelDensity(kernel='gaussian',
+                            bandwidth=h).fit(X, sample_weight=weights)
 
-            stats = importr("stats")
+        X = X.copy()
+        density_scores = kde.score_samples(X)
+        return X[density_scores.argmax()][0]
 
-            column = vectors.IntVector([63, 45, 47, 28, 59, 28, 59])
+    def boot(beta_iv_in, se_beta_iv_in):
+        beta_boot = []
+        for _ in range(1, nboot + 1):
+            beta_iv_boot = np.random.normal(
+                loc=beta_iv_in, scale=se_beta_iv_in, size=len(beta_iv_in))
+            if method == 'simple':
+                beta_boot.append(
+                    beta(beta_iv_boot, np.repeat(1, len(beta_iv)), phi))
+            elif method == 'weighted':
+                beta_boot.append(beta(beta_iv_boot, se_beta_iv_in, phi))
+        return np.array(beta_boot)
 
-            output = stats.density(column, adjust=1)
+    beta_iv = beta_out/beta_exp
+    se_beta_iv = ((se_out**2/beta_exp**2) +
+                  ((beta_out**2)*(se_exp**2))/beta_exp**4)**0.5
+    if method == 'simple':
+        effect = beta(beta_iv.to_numpy(), np.repeat(1, len(beta_iv)), phi)
+    elif method == 'weighted':
+        effect = beta(beta_iv.to_numpy(), se_beta_iv, phi)
 
-            x = np.array(output[0])
-            y = np.array(output[1])
-            beta.append(x[y == max(y)])
+    return {
+        'effect': effect,
+        'se': mad(boot(beta_iv, se_beta_iv))
+    }
 
-        print(beta)
-        return beta
 
-    phi = 1000
+def mr_simple_mode(beta_exp, beta_out, se_exp, se_out, phi=100, nboot=100):
+    """
+    Computes the causal effect using simple mode.
 
-    beta(beta_exp, se_exp, phi)
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_exp -- Standard errors of genetic effects on exposure
+
+    se_out -- Standard errors of genetic effects on outcome
+
+    phi -- Bandwidth parameter for density estimation
+
+    nboot -- Number of bootstraps to calculate SE
+    """
+    return mr_mode(beta_exp, beta_out, se_exp, se_out, 'simple', phi, nboot)
+
+
+def mr_weighted_mode(beta_exp, beta_out, se_exp, se_out, phi=100, nboot=100):
+    """
+    Computes the causal effect using weighted mode.
+
+    Arguments:
+
+    beta_exp -- Vector of genetic effects on exposure
+
+    beta_out -- Vector of genetic effects on outcome
+
+    se_exp -- Standard errors of genetic effects on exposure
+
+    se_out -- Standard errors of genetic effects on outcome
+
+    phi -- Bandwidth parameter for density estimation
+
+    nboot -- Number of bootstraps to calculate SE
+    """
+    return mr_mode(beta_exp, beta_out, se_exp, se_out, 'weighted', phi, nboot)
