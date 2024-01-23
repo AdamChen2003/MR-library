@@ -36,6 +36,13 @@ def calculate_effect(data: pl.DataFrame, method: str):
 
     method -- str which specifies which method to use. 
         The list of available methods are accessible through the 'methods' list
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     if method == 'inverse_variance_weighted':
         return mr_inverse_variance_weighted(data['beta_exp'], data['beta_out'], data['se_out'])

@@ -15,6 +15,13 @@ def mr_maximum_likelihood(beta_exp, beta_out, se_exp, se_out):
     se_exp -- Standard errors of genetic effects on exposure
 
     se_out -- Standard errors of genetic effects on outcome
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     n = len(beta_exp)
 

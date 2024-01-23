@@ -13,6 +13,13 @@ def mr_egger_regression(beta_exp, beta_out, se_out):
     beta_out -- Vector of genetic effects on outcome
 
     se_out -- Standard errors of genetic effects on outcome
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     def sign0(x):
         x[x == 0] = -1

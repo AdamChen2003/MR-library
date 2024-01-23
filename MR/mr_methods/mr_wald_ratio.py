@@ -9,9 +9,16 @@ def mr_wald_ratio(beta_exp, beta_out, se_out):
     beta_out -- Vector of genetic effects on outcome
 
     se_out -- Standard errors of genetic effects on outcome
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
-    effect = (beta_out/beta_exp).mean()
-    se = (se_out/abs(beta_exp)).mean()
+    effect = (beta_out/beta_exp)
+    se = (se_out/abs(beta_exp))
 
     return {
         'effect': effect, 'se': se

@@ -20,6 +20,13 @@ def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=100, nboot=100):
     phi -- Bandwidth parameter for density estimation
 
     nboot -- Number of bootstraps to calculate SE
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     def mad(data):
         """
@@ -83,6 +90,13 @@ def mr_simple_mode(beta_exp, beta_out, se_exp, se_out, phi=100, nboot=100):
     phi -- Bandwidth parameter for density estimation
 
     nboot -- Number of bootstraps to calculate SE
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     return mr_mode(beta_exp, beta_out, se_exp, se_out, 'simple', phi, nboot)
 
@@ -104,5 +118,12 @@ def mr_weighted_mode(beta_exp, beta_out, se_exp, se_out, phi=100, nboot=100):
     phi -- Bandwidth parameter for density estimation
 
     nboot -- Number of bootstraps to calculate SE
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     return mr_mode(beta_exp, beta_out, se_exp, se_out, 'weighted', phi, nboot)

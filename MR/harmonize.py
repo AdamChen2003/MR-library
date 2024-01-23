@@ -19,6 +19,9 @@ def harmonize(data: pl.DataFrame, palindromic_threshold=0.05):
 
     palindromic_threshold -- threshold to filter out palindromic SNPs. 
         A higher value results in stricter filtering. (Default 0.05)
+
+
+    Returns: A harmonised polars dataframe with same columns as input data
     """
     forwards_same = data.filter(((pl.col('ea_exp') == pl.col(
         'ea_out')) & (pl.col('oa_exp') == pl.col('oa_out'))))

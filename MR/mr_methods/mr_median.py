@@ -67,6 +67,13 @@ def mr_simple_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
     se_out -- Standard errors of genetic effects on outcome
 
     nboot -- Number of bootstraps to calculate SE
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     n = len(beta_exp)
     beta_iv = beta_out/beta_exp
@@ -94,6 +101,13 @@ def mr_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
     se_out -- Standard errors of genetic effects on outcome
 
     nboot -- Number of bootstraps to calculate SE
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     beta_iv = beta_out/beta_exp
     VBj = se_out**2/beta_exp**2 + beta_out**2 * se_exp**2/beta_exp**4
@@ -120,6 +134,13 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000)
     se_out -- Standard errors of genetic effects on outcome
 
     nboot -- Number of bootstraps to calculate SE
+
+    Returns:
+
+    {
+        'effect: causal effect estimation,
+        'se' : standard error of effect estimation
+    }
     """
     beta_iv = beta_out/beta_exp
     beta_ivw = ((beta_out*beta_exp*se_out**(-2)).sum() /
