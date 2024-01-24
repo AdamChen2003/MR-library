@@ -1,6 +1,7 @@
 import numpy as np
 from statistics import stdev
 from scipy.stats import chi2
+from MR.mr_methods.utils import pmin
 
 
 def weighted_median(beta_iv, weights):
@@ -136,6 +137,8 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000,
 
     nboot -- Number of bootstraps to calculate SE
 
+    penk -- Constant term in penalisation
+
     Returns:
 
     {
@@ -148,14 +151,6 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000,
     weights = 1/VBj
     bwm = mr_weighted_median(beta_exp, beta_out, se_exp, se_out)
     penalty = chi2.cdf(weights*(beta_iv-bwm['effect'])**2, df=1)
-
-    def pmin(x1, x2):
-        arr = np.array([])
-        for i in range(0, len(x1)):
-            arr = np.append(arr, min(x1[i], x2[i]))
-
-        return arr
-
     penalty_weights = weights*pmin(np.repeat(1, len(penalty)), penalty*penk)
     effect = weighted_median(beta_iv, penalty_weights)
     se = weighted_median_bootstrap(beta_exp, beta_out, se_exp,
