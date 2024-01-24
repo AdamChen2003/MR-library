@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from scipy.optimize import minimize
 
@@ -33,7 +34,7 @@ def mr_maximum_likelihood(beta_exp, beta_out, se_exp, se_out):
 
     res = minimize(log_likelihood, initial)
     effect = res.x[n]
-    se = res.hess_inv[n, n] ** 1/2
+    se = math.sqrt(res.hess_inv[n, n])
 
     return {
         'effect': effect, 'se': se

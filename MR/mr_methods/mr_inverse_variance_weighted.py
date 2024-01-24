@@ -17,9 +17,9 @@ def mr_inverse_variance_weighted(beta_exp, beta_out, se_out):
         'se' : standard error of effect estimation
     }
     """
-    effect = (beta_exp * beta_out * se_out ** -2).sum() / \
-        (beta_exp ** 2 * se_out ** -2).sum()
-    se = ((beta_exp ** 2 * se_out ** -2).sum()) ** -0.5
+    effect = (beta_exp*beta_out * se_out**(-2)).sum() / \
+        (beta_exp**2*se_out**(-2)).sum()
+    se = ((beta_exp**2*se_out**(-2)).sum())**(-0.5)
 
     return {
         'effect': effect, 'se': se
