@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.neighbors import KernelDensity
 
 
-def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=100, nboot=100):
+def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=1, nboot=1000):
     """
     Performs simple or weighted mode.
 
@@ -34,7 +34,7 @@ def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=100, nboot=100):
         """
         return (abs(data-data.mean())).sum()/len(data)
 
-    def beta(beta_iv_in, se_beta_iv_in, phi=100):
+    def beta(beta_iv_in, se_beta_iv_in, phi=1):
         s = 0.9*min(stdev(beta_iv_in), mad(beta_iv_in))*len(beta_iv_in)**(-1/5)
         weights = 1/(se_beta_iv_in**(2)*(1/se_beta_iv_in**(2)).sum())
         # for cur_phi in phi:
@@ -73,7 +73,7 @@ def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=100, nboot=100):
     }
 
 
-def mr_simple_mode(beta_exp, beta_out, se_exp, se_out, phi=100, nboot=100):
+def mr_simple_mode(beta_exp, beta_out, se_exp, se_out, phi=1, nboot=1000):
     """
     Computes the causal effect using simple mode.
 
@@ -101,7 +101,7 @@ def mr_simple_mode(beta_exp, beta_out, se_exp, se_out, phi=100, nboot=100):
     return mr_mode(beta_exp, beta_out, se_exp, se_out, 'simple', phi, nboot)
 
 
-def mr_weighted_mode(beta_exp, beta_out, se_exp, se_out, phi=100, nboot=100):
+def mr_weighted_mode(beta_exp, beta_out, se_exp, se_out, phi=1, nboot=1000):
     """
     Computes the causal effect using weighted mode.
 
