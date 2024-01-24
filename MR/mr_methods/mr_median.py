@@ -3,7 +3,7 @@ from statistics import stdev
 from scipy.stats import chi2
 
 
-def mr_median(beta_iv, weights):
+def weighted_median(beta_iv, weights):
     """
     Weighted median method.
 
@@ -13,16 +13,16 @@ def mr_median(beta_iv, weights):
 
     weights -- Weights for each SNP
     """
-    beta_IV_sorted = np.sort(beta_iv)
+    beta_iv_sorted = np.sort(beta_iv)
     weights_sorted = np.sort(weights)
     weights_sum = np.cumsum(weights_sorted) - 1/2 * weights_sorted
     weights_sum = weights_sum/np.sum(weights_sorted)
     below = np.max(np.where(weights_sum < 1/2))
-    return beta_IV_sorted[below-1] + (beta_IV_sorted[below] - beta_IV_sorted[below-1]) * (
+    return beta_iv_sorted[below-1] + (beta_iv_sorted[below] - beta_iv_sorted[below-1]) * (
         1/2-weights_sum[below-1])/(weights_sum[below]-weights_sum[below-1])
 
 
-def mr_median_se(beta_exp, beta_out, se_exp, se_out, weights, nboot=1000):
+def weighted_median_bootstrap(beta_exp, beta_out, se_exp, se_out, weights, nboot=1000):
     """
     Computes the SE for median methods.
 
@@ -46,8 +46,8 @@ def mr_median_se(beta_exp, beta_out, se_exp, se_out, weights, nboot=1000):
             loc=beta_exp, scale=se_exp, size=len(beta_exp))
         beta_out_boot = np.random.normal(
             loc=beta_out, scale=se_out, size=len(beta_out))
-        betaIV_boot = beta_out_boot/beta_exp_boot
-        med.append(mr_median(betaIV_boot, weights))
+        beta_iv_boot = beta_out_boot/beta_exp_boot
+        med.append(weighted_median(beta_iv_boot, weights))
 
     return stdev(med)
 
@@ -77,9 +77,9 @@ def mr_simple_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
     """
     n = len(beta_exp)
     beta_iv = beta_out/beta_exp
-    effect = mr_median(beta_iv, np.repeat(1/n, n))
-    se = mr_median_se(beta_exp, beta_out, se_exp,
-                      se_out, np.repeat(1/n, n), nboot)
+    effect = weighted_median(beta_iv, np.repeat(1/n, n))
+    se = weighted_median_bootstrap(beta_exp, beta_out, se_exp,
+                                   se_out, np.repeat(1/n, n), nboot)
 
     return {
         'effect': effect, 'se': se
@@ -111,15 +111,16 @@ def mr_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
     """
     beta_iv = beta_out/beta_exp
     VBj = se_out**2/beta_exp**2 + beta_out**2 * se_exp**2/beta_exp**4
-    effect = mr_median(beta_iv, 1/VBj)
-    se = mr_median_se(beta_exp, beta_out, se_exp, se_out, 1/VBj, nboot)
+    effect = weighted_median(beta_iv, 1/VBj)
+    se = weighted_median_bootstrap(
+        beta_exp, beta_out, se_exp, se_out, 1/VBj, nboot)
 
     return {
         'effect': effect, 'se': se
     }
 
 
-def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
+def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000, penk=20):
     """
     Computes the causal effect using penalised weighted median.
 
@@ -143,17 +144,22 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000)
     }
     """
     beta_iv = beta_out/beta_exp
-    beta_ivw = ((beta_out*beta_exp*se_out**(-2)).sum() /
-                (beta_exp**2*se_out**(-2)).sum())
     VBj = se_out**2/beta_exp**2 + beta_out**2 * se_exp**2/beta_exp**4
     weights = 1/VBj
     bwm = mr_weighted_median(beta_exp, beta_out, se_exp, se_out)
-    penalty = chi2.cdf(weights*beta_iv-bwm['effect']**2, df=1)
-    # penalty * pmin(weights, 1)
-    penalty_weights = penalty*weights
-    effect = mr_median(beta_iv, penalty_weights)
-    se = mr_median_se(beta_exp, beta_out, se_exp,
-                      se_out, penalty_weights, nboot)
+    penalty = chi2.cdf(weights*(beta_iv-bwm['effect'])**2, df=1)
+
+    def pmin(x1, x2):
+        arr = np.array([])
+        for i in range(0, len(x1)):
+            arr = np.append(arr, min(x1[i], x2[i]))
+
+        return arr
+
+    penalty_weights = weights*pmin(np.repeat(1, len(penalty)), penalty*penk)
+    effect = weighted_median(beta_iv, penalty_weights)
+    se = weighted_median_bootstrap(beta_exp, beta_out, se_exp,
+                                   se_out, penalty_weights, nboot)
 
     return {
         'effect': effect, 'se': se
