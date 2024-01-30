@@ -1,4 +1,3 @@
-import math
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
@@ -50,7 +49,7 @@ def mr_egger_regression(beta_exp, beta_out, se_out):
         sigma_squared_hat = residual_sum_of_squares[0, 0] / (N - p)
         var_beta_hat = np.linalg.inv(
             X_with_intercept.T @ X_with_intercept) * sigma_squared_hat
-        return [math.sqrt(var_beta_hat[p_, p_]) for p_ in range(p)]
+        return [np.sqrt(var_beta_hat[p_, p_]) for p_ in range(p)]
 
     effect = model.coef_[0][0]
     # se = get_se()[1] / min(1, model.sigma)
