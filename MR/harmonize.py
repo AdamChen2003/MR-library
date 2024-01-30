@@ -34,7 +34,10 @@ def harmonize(data: pl.DataFrame, palindromic_threshold=0.05):
             pl.col('beta_out').mul(-1),
             pl.col('eaf_out').mul(-1).add(1)
         )
-    )
+    ).rename({
+        'oa_out': 'ea_out',
+        'ea_out': 'oa_out',
+    })
 
     # Find cases where alleles don't match
     reverse = (data.filter(~(((pl.col('ea_exp') == pl.col('ea_out')) & (pl.col('oa_exp') == pl.col('oa_out'))) |
@@ -64,11 +67,16 @@ def harmonize(data: pl.DataFrame, palindromic_threshold=0.05):
             pl.col('beta_out').mul(-1),
             pl.col('eaf_out').mul(-1).add(1)
         )
-    )
+    ).rename({
+        'oa_out': 'ea_out',
+        'ea_out': 'oa_out',
+    })
 
     # Combining all SNPs
-    total = pl.concat([forwards_same, forwards_flipped,
-                      reverse_same, reverse_flipped])
+    total = pl.concat([forwards_same[sorted(forwards_same.columns)],
+                       forwards_flipped[sorted(forwards_flipped.columns)],
+                       reverse_same[sorted(reverse_same.columns)],
+                       reverse_flipped[sorted(reverse_flipped.columns)]])
 
     # Dealing with palindromic SNPs
     palindromic = total.filter(
