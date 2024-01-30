@@ -1,10 +1,10 @@
 import polars as pl
-from MR.mr_methods.mr_egger_regression import mr_egger_regression
-from MR.mr_methods.mr_inverse_variance_weighted import mr_inverse_variance_weighted
-from MR.mr_methods.mr_maximum_likelihood import mr_maximum_likelihood
-from MR.mr_methods.mr_median import mr_penalised_weighted_median, mr_simple_median, mr_weighted_median
-from MR.mr_methods.mr_mode import mr_penalised_weighted_mode, mr_simple_mode, mr_weighted_mode
-from MR.mr_methods.mr_wald_ratio import mr_wald_ratio
+from MR.mr_methods.egger_regression import mr_egger_regression
+from MR.mr_methods.inverse_variance_weighted import mr_inverse_variance_weighted
+from MR.mr_methods.maximum_likelihood import mr_maximum_likelihood
+from MR.mr_methods.median import mr_penalised_weighted_median, mr_simple_median, mr_weighted_median
+from MR.mr_methods.mode import mr_penalised_weighted_mode, mr_simple_mode, mr_weighted_mode
+from MR.mr_methods.wald_ratio import mr_wald_ratio
 
 
 methods = [
