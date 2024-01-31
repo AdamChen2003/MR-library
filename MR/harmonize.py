@@ -17,8 +17,15 @@ def harmonize(data: pl.DataFrame, palindromic_action=1, palindromic_threshold=0.
         eaf_exp: Effect allele frequency for exposure
         eaf_out: Effect allele frequency for outcome
 
+    palindromic_action -- determines how to deal with palindromic SNPs (default 0.08)
+        1: Uses the palindromic_threshold to filter out palindromic SNPs
+        2: Discards all palindromic SNPs. Ignores the provided 
+            palindromic_threshold
+        3: Proceeds by ignoring palindromic SNPs
+
+
     palindromic_threshold -- threshold to filter out palindromic SNPs. 
-        A higher value results in stricter filtering. (Default 0.05)
+        A higher value results in stricter filtering. (Default 0.08)
 
 
     Returns: A harmonised polars dataframe with same columns as input data
