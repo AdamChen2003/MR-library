@@ -113,15 +113,18 @@ def harmonize(data: pl.DataFrame, palindromic_action=1, palindromic_threshold=0.
             pl.col('beta_out').mul(-1))
         )
 
-        return pl.concat([total, correct_palindromic, flipped_palindromic])
+        total = pl.concat([total, correct_palindromic, flipped_palindromic])
 
     elif palindromic_action == 2:
         # Get rid of all palindromic SNPs
-        return total.filter(
+        total = total.filter(
             ~(((pl.col('ea_exp') == 'a') & (pl.col('oa_exp') == 't')) |
               ((pl.col('ea_exp') == 't') & (pl.col('oa_exp') == 'a')) |
               ((pl.col('ea_exp') == 'g') & (pl.col('oa_exp') == 'c')) |
               ((pl.col('ea_exp') == 'c') & (pl.col('oa_exp') == 'g'))))
 
-    elif palindromic_action == 3:
-        return total
+    elif palindromic_action != 3:
+        raise ValueError('no such value for palindromic_action')
+
+    # Getting rid of duplicate SNPs
+    return total.unique(subset=['rsid'])
