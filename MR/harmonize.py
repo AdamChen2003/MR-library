@@ -23,9 +23,12 @@ def harmonize(data: pl.DataFrame, palindromic_action=1, palindromic_threshold=0.
 
     Returns: A harmonised polars dataframe with same columns as input data
     """
+
+    # Gathering all SNPs using fowards strand with matching effect and alternate alleles between exposure and outcome.
     forwards_same = data.filter(((pl.col('ea_exp') == pl.col(
         'ea_out')) & (pl.col('oa_exp') == pl.col('oa_out'))))
 
+    # Gathering all SNPs using forwards strand with flipped effect and alternate alleles between exposure and outcome. The effect is then multiplied by -1.
     forwards_flipped = (
         data.filter(((pl.col('ea_exp') == pl.col('oa_out')) &
                      (pl.col('oa_exp') == pl.col('ea_out'))))
@@ -39,7 +42,7 @@ def harmonize(data: pl.DataFrame, palindromic_action=1, palindromic_threshold=0.
         'ea_out': 'oa_out',
     })
 
-    # Find cases where alleles don't match
+    # Flipping the outcome alleles of the remaining SNPs since the remaining valid SNPs must use the reverse strand.
     reverse = (data.filter(~(((pl.col('ea_exp') == pl.col('ea_out')) & (pl.col('oa_exp') == pl.col('oa_out'))) |
                              (((pl.col('ea_exp') == pl.col('oa_out')) & (pl.col('oa_exp') == pl.col('ea_out'))))))
                # Flipping the alleles
@@ -53,11 +56,13 @@ def harmonize(data: pl.DataFrame, palindromic_action=1, palindromic_threshold=0.
                .with_columns(pl.col('oa_out').str.replace('c', 'g'))
                )
 
+    # Gathering SNPs from reverse strand which use the same alleles for exposure and outcome.
     reverse_same = (
         reverse.filter(((pl.col('ea_exp') == pl.col('ea_out')) &
                        (pl.col('oa_exp') == pl.col('oa_out'))))
     )
 
+    # Gathering SNPs from reverse strand which flipped the effect and alternate alleles. We then multiply the effect by -1.
     reverse_flipped = (
         # Find all reversed cases
         reverse.filter(((pl.col('ea_exp') == pl.col('oa_out')) &
@@ -72,14 +77,15 @@ def harmonize(data: pl.DataFrame, palindromic_action=1, palindromic_threshold=0.
         'ea_out': 'oa_out',
     })
 
-    # Combining all SNPs
+    # Combining all the different cases into one dataframe.
     total = pl.concat([forwards_same[sorted(forwards_same.columns)],
                        forwards_flipped[sorted(forwards_flipped.columns)],
                        reverse_same[sorted(reverse_same.columns)],
                        reverse_flipped[sorted(reverse_flipped.columns)]])
 
-    # Dealing with palindromic SNPs
-
+    # Dealing with palindromic SNPs. These are troublesome because we are unable to determine whether they
+    # are reverse strand or using the different effect and alternate alleles. Thus, we have to infer from
+    # the effect allele frequency.
     if palindromic_action == 1:
         # Keep the SNPs which meet the thresholds and discard the rest
         palindromic = total.filter(
