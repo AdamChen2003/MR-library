@@ -25,7 +25,7 @@ def ld_matrix(rsids, pop='EUR'):
     )
 
 
-def ld_clump(rsids, pvals, pthresh=5*10**(-8), r2=0.001, kb=5000, pop='EUR'):
+def ld_clump(rsids, pvals, pthresh=5*10**(-8), r2=0.001, kb=10000, pop='EUR'):
     """
     Returns a dataframe of pruned rsids based on linkage disequilibrium using the ieugwaspy library which 
     acesses the IEUGWAS api.
