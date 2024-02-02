@@ -17,8 +17,9 @@ def mr_inverse_variance_weighted(beta_exp, beta_out, se_out):
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     mod = sm.WLS(beta_out.to_numpy(), beta_exp.to_numpy(),
