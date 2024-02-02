@@ -33,6 +33,7 @@ def mr_egger_regression(beta_exp, beta_out, se_out):
     beta_out = (beta_out*sign0(beta_exp)).to_numpy().reshape((-1, 1))
     beta_exp = abs(beta_exp).to_numpy().reshape((-1, 1))
 
+    # Note that add_constant adds a column of ones to provide the intercept
     mod = sm.WLS(beta_out, add_constant(beta_exp),
                  weights=1 / (se_out.to_numpy() ** 2)).fit()
 
