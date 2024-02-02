@@ -1,8 +1,9 @@
 from statistics import stdev
 import numpy as np
+from scipy import stats
 from scipy.stats import chi2
 from sklearn.neighbors import KernelDensity
-from MR.mr_methods.utils import pmin
+from MR.mr_methods.utils import mad, pmin
 
 
 def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=1, nboot=1000, penk=20):
@@ -26,15 +27,11 @@ def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=1, nboot=1000, penk=
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
-    def mad(data):
-        """
-        Computes median absolute deivation for provided data
-        """
-        return (abs(data-data.mean())).sum()/len(data)
 
     def beta(beta_iv_in, se_beta_iv_in, phi=1):
         s = 0.9*min(stdev(beta_iv_in), mad(beta_iv_in))*len(beta_iv_in)**(-1/5)
@@ -83,10 +80,13 @@ def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=1, nboot=1000, penk=
             pmin(np.repeat(1, len(penalty)), penalty*penk)
         effect = beta(beta_iv.to_numpy(), 1/penalty_weights**0.5, phi)
 
+    se = mad(boot(beta_iv, se_beta_iv))
+    pval = 2*stats.t.sf(abs(effect/se), df=len(beta_exp)-1)
+
     return {
         'effect': effect,
-        # 'se': 0
-        'se': mad(boot(beta_iv, se_beta_iv))
+        'se': se,
+        'pval': pval
     }
 
 
@@ -111,8 +111,9 @@ def mr_simple_mode(beta_exp, beta_out, se_exp, se_out, phi=1, nboot=1000):
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     return mr_mode(beta_exp, beta_out, se_exp, se_out, 'simple', phi, nboot)
@@ -139,8 +140,9 @@ def mr_weighted_mode(beta_exp, beta_out, se_exp, se_out, phi=1, nboot=1000):
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     return mr_mode(beta_exp, beta_out, se_exp, se_out, 'weighted', phi, nboot)
@@ -169,8 +171,9 @@ def mr_penalised_weighted_mode(beta_exp, beta_out, se_exp, se_out, phi=1, nboot=
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     return mr_mode(beta_exp, beta_out, se_exp, se_out, 'penalised', phi, nboot, penk)
