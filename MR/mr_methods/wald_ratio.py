@@ -1,3 +1,6 @@
+import scipy.stats as stats
+
+
 def mr_wald_ratio(beta_exp, beta_out, se_out):
     """
     Computes the causal effect using the Wald ratio method.
@@ -13,13 +16,15 @@ def mr_wald_ratio(beta_exp, beta_out, se_out):
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     effect = (beta_out/beta_exp)
     se = (se_out/abs(beta_exp))
+    pval = 2*stats.norm.sf(abs(effect)/se)
 
     return {
-        'effect': effect, 'se': se
+        'effect': effect, 'se': se, 'pval': pval
     }
