@@ -1,5 +1,6 @@
 import numpy as np
 from statistics import stdev
+from scipy import stats
 from scipy.stats import chi2
 from MR.mr_methods.utils import pmin
 
@@ -25,7 +26,7 @@ def weighted_median(beta_iv, weights):
 
 def weighted_median_bootstrap(beta_exp, beta_out, se_exp, se_out, weights, nboot=1000):
     """
-    Computes the SE for median methods.
+    Computes the standard errors for median methods.
 
     Arguments:
 
@@ -72,8 +73,9 @@ def mr_simple_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     n = len(beta_exp)
@@ -81,9 +83,10 @@ def mr_simple_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
     effect = weighted_median(beta_iv, np.repeat(1/n, n))
     se = weighted_median_bootstrap(beta_exp, beta_out, se_exp,
                                    se_out, np.repeat(1/n, n), nboot)
+    pval = 2*stats.norm.sf(abs(effect)/se)
 
     return {
-        'effect': effect, 'se': se
+        'effect': effect, 'se': se, 'pval': pval
     }
 
 
@@ -106,8 +109,9 @@ def mr_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     beta_iv = beta_out/beta_exp
@@ -115,9 +119,10 @@ def mr_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
     effect = weighted_median(beta_iv, 1/VBj)
     se = weighted_median_bootstrap(
         beta_exp, beta_out, se_exp, se_out, 1/VBj, nboot)
+    pval = 2*stats.norm.sf(abs(effect)/se)
 
     return {
-        'effect': effect, 'se': se
+        'effect': effect, 'se': se, 'pval': pval
     }
 
 
@@ -142,8 +147,9 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000,
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     beta_iv = beta_out/beta_exp
@@ -155,7 +161,8 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000,
     effect = weighted_median(beta_iv, penalty_weights)
     se = weighted_median_bootstrap(beta_exp, beta_out, se_exp,
                                    se_out, penalty_weights, nboot)
+    pval = 2*stats.norm.sf(abs(effect)/se)
 
     return {
-        'effect': effect, 'se': se
+        'effect': effect, 'se': se, 'pval': pval
     }
