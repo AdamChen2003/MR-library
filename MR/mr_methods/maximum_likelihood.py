@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import stats
 from scipy.optimize import minimize
 
 
@@ -19,8 +20,9 @@ def mr_maximum_likelihood(beta_exp, beta_out, se_exp, se_out):
     Returns:
 
     {
-        'effect: causal effect estimation,
-        'se' : standard error of effect estimation
+        'effect: MR estimate,
+        'se': standard error of MR estimate,
+        'pval': pval of MR estimation
     }
     """
     n = len(beta_exp)
@@ -34,7 +36,8 @@ def mr_maximum_likelihood(beta_exp, beta_out, se_exp, se_out):
     res = minimize(log_likelihood, initial)
     effect = res.x[n]
     se = np.sqrt(res.hess_inv[n, n])
+    pval = 2 * (1-stats.norm.cdf(abs(effect)/se))
 
     return {
-        'effect': effect, 'se': se
+        'effect': effect, 'se': se, 'pval': pval
     }
