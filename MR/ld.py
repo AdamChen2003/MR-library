@@ -6,14 +6,17 @@ population = ['EUR', 'SAS', 'EAS', 'AFR', 'AMR', 'legacy']
 
 def ld_matrix(rsids, pop='EUR'):
     """
-    Returns linkage disequilibirum matrix between pairs of rsids using the ieugwaspy library which 
-    acesses the IEUGWAS api.
+    For a list of SNPs get the LD R values. These are presented relative to a specified reference allele.
+    Uses 1000 genomes reference data filtered to within-population MAF > 0.01 and only retaining SNPs.
+
+    Accesses the IEUGWAS api documented at http://gwasapi.mrcieu.ac.uk/docs/
 
     Arguments:
 
     rsids -- list of rsids to be examined
 
-    pop -- Choice of demographic from the population list (default EUR)
+    pop -- choice of demographic from the population list (default = 'EUR')
+        possible options: 'EUR', 'SAS', 'EAS', 'AFR', 'AMR', 'legacy'
     """
     return igd.api_query(
         path='/ld/matrix',
@@ -27,16 +30,21 @@ def ld_matrix(rsids, pop='EUR'):
 
 def ld_clump(rsids, pvals, pthresh=5*10**(-8), r2=0.001, kb=10000, pop='EUR'):
     """
-    Returns a dataframe of pruned rsids based on linkage disequilibrium using the ieugwaspy library which 
-    acesses the IEUGWAS api.
+    Perform clumping a specified set of rs IDs.
+    Uses 1000 genomes reference data filtered to within-population MAF > 0.01 and only retaining SNPs.
+
+    Accesses the IEUGWAS api documented at http://gwasapi.mrcieu.ac.uk/docs/
 
     Arguments:
 
-    rsids -- A list of rsids to be examined
+    rsids -- list of rsids to be examined
 
-    pvals -- A list of p-values which are associated with the rsids
+    pvals -- list of p-values which are associated with the rsids
 
-    pop -- A choice of demographic from the population list (default EUR)
+    pthresh -- p-value threshold used to discard SNPs based on p-values (default = 5e-8)
+
+    pop -- choice of demographic from the population list (default = 'EUR')
+        possible options: 'EUR', 'SAS', 'EAS', 'AFR', 'AMR', 'legacy'
     """
     pruned = igd.api_query(
         path='/ld/clump',
