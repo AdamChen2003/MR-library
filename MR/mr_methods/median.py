@@ -40,7 +40,7 @@ def weighted_median_bootstrap(beta_exp, beta_out, se_exp, se_out, weights, nboot
 
     weights -- Weights of each SNP
 
-    nboot -- Number of bootstraps to calculate SE
+    nboot -- Number of bootstraps to calculate SE (default = 1000)
     """
     med = []
     for i in range(1, nboot + 1):
@@ -68,7 +68,7 @@ def mr_simple_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
 
     se_out -- Standard errors of genetic effects on outcome
 
-    nboot -- Number of bootstraps to calculate SE
+    nboot -- Number of bootstraps to calculate SE (default = 1000)
 
     Returns:
 
@@ -104,7 +104,7 @@ def mr_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000):
 
     se_out -- Standard errors of genetic effects on outcome
 
-    nboot -- Number of bootstraps to calculate SE
+    nboot -- Number of bootstraps to calculate SE (default = 1000)
 
     Returns:
 
@@ -140,9 +140,9 @@ def mr_penalised_weighted_median(beta_exp, beta_out, se_exp, se_out, nboot=1000,
 
     se_out -- Standard errors of genetic effects on outcome
 
-    nboot -- Number of bootstraps to calculate SE
+    nboot -- Number of bootstraps to calculate SE (default = 1000)
 
-    penk -- Constant term in penalisation
+    penk -- Constant term in penalisation (default = 20)
 
     Returns:
 

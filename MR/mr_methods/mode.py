@@ -20,9 +20,11 @@ def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=1, nboot=1000, penk=
 
     se_out -- Standard errors of genetic effects on outcome
 
-    phi -- Bandwidth parameter for density estimation
+    phi -- Bandwidth parameter for density estimation (default = 1)
 
-    nboot -- Number of bootstraps to calculate SE
+    nboot -- Number of bootstraps to calculate SE (default = 1000)
+
+    penk -- Constant term in penalisation (default = 20)
 
     Returns:
 
@@ -104,9 +106,9 @@ def mr_simple_mode(beta_exp, beta_out, se_exp, se_out, phi=1, nboot=1000):
 
     se_out -- Standard errors of genetic effects on outcome
 
-    phi -- Bandwidth parameter for density estimation
+    phi -- Bandwidth parameter for density estimation (default = 1)
 
-    nboot -- Number of bootstraps to calculate SE
+    nboot -- Number of bootstraps to calculate SE (default = 1000)
 
     Returns:
 
@@ -133,9 +135,9 @@ def mr_weighted_mode(beta_exp, beta_out, se_exp, se_out, phi=1, nboot=1000):
 
     se_out -- Standard errors of genetic effects on outcome
 
-    phi -- Bandwidth parameter for density estimation
+    phi -- Bandwidth parameter for density estimation (default = 1)
 
-    nboot -- Number of bootstraps to calculate SE
+    nboot -- Number of bootstraps to calculate SE (default = 1000)
 
     Returns:
 
@@ -162,11 +164,11 @@ def mr_penalised_weighted_mode(beta_exp, beta_out, se_exp, se_out, phi=1, nboot=
 
     se_out -- Standard errors of genetic effects on outcome
 
-    phi -- Bandwidth parameter for density estimation
+    phi -- Bandwidth parameter for density estimation (default = 1)
 
-    nboot -- Number of bootstraps to calculate SE
+    nboot -- Number of bootstraps to calculate SE (default = 1000)
 
-    penk -- Constant term in penalisation
+    penk -- Constant term in penalisation (default = 20)
 
     Returns:
 
