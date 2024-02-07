@@ -64,7 +64,7 @@ def mr_mode(beta_exp, beta_out, se_exp, se_out, method, phi=1, nboot=1000, penk=
                 penalty_weights = weights * \
                     pmin(np.repeat(1, len(penalty)), penalty*penk)
                 beta_boot.append(
-                    beta(beta_iv_boot, 1/penalty_weights**0.5, phi))
+                    beta(beta_iv_boot, np.sqrt(1/penalty_weights), phi))
         return np.array(beta_boot)
 
     beta_iv = beta_out/beta_exp
