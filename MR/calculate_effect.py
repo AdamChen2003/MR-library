@@ -4,6 +4,7 @@ from MR.mr_methods.inverse_variance_weighted import mr_inverse_variance_weighted
 from MR.mr_methods.maximum_likelihood import mr_maximum_likelihood
 from MR.mr_methods.median import mr_penalised_weighted_median, mr_simple_median, mr_weighted_median
 from MR.mr_methods.mode import mr_penalised_weighted_mode, mr_simple_mode, mr_weighted_mode
+from MR.mr_methods.outliers import mr_presso
 from MR.mr_methods.wald_ratio import mr_wald_ratio
 
 
@@ -45,6 +46,9 @@ def calculate_effect(data: pl.DataFrame, method: str):
         'se' : standard error of effect estimation
     }
     """
+
+    # Should drop rows with na values
+
     if method == 'inverse_variance_weighted':
         return mr_inverse_variance_weighted(data['beta_exp'], data['beta_out'], data['se_out'])
 
@@ -74,3 +78,6 @@ def calculate_effect(data: pl.DataFrame, method: str):
 
     elif method == 'egger_regression':
         return mr_egger_regression(data['beta_exp'], data['beta_out'], data['se_out'])
+
+    elif method == 'presso':
+        return mr_presso(data['beta_exp'], data['beta_out'], data['se_exp'], data['se_out'])
